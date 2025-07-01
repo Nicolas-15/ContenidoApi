@@ -6,11 +6,11 @@ on:
       - main
 
 jobs:
-
   build:
-    name: Compilar y generar .jar
+    name: Compilar y desplegar Spring Boot a EC2
     runs-on: ubuntu-latest
     steps:
+
       - name: Clonar repositorio
         uses: actions/checkout@v4
 
@@ -23,15 +23,26 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Compilar proyecto (crea .jar en target/)
+      - name: Compilar proyecto (genera el .jar en target/)
         run: mvn clean package
 
-      - name: Renombrar jar a app.jar
+      - name: Renombrar .jar a app.jar
         run: |
           mkdir dist
           cp target/*.jar dist/app.jar
 
-      - name: Copiar app.jar y archivos Docker a EC2
+      - name: Verificar archivos generados
+        run: |
+          echo "Archivos en dist:"
+          ls -la dist
+
+      - name: Validar existencia de archivos antes de SCP
+        run: |
+          [ -f dist/app.jar ] || (echo "ERROR: dist/app.jar no existe" && exit 1)
+          [ -f Dockerfile ] || (echo "ERROR: Dockerfile no existe" && exit 1)
+          [ -f docker-compose.yml ] || (echo "ERROR: docker-compose.yml no existe" && exit 1)
+
+      - name: Copiar archivos al servidor EC2
         uses: appleboy/scp-action@v0.1.6
         with:
           host: ${{ secrets.IP_SERVER }}
@@ -44,7 +55,7 @@ jobs:
             docker-compose.yml
           target: /home/ubuntu/app/
 
-      - name: Levantar contenedor en EC2 con Docker Compose
+      - name: Desplegar con Docker Compose en EC2
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.IP_SERVER }}
@@ -55,3 +66,4 @@ jobs:
             cd /home/ubuntu/app
             sudo docker compose down
             sudo docker compose up -d --build
+            sudo docker compose ps
