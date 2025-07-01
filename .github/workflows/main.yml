@@ -20,6 +20,9 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Dar permisos a mvnw
+        run: chmod +x ./mvnw
+
       - name: Ejecutar pruebas Maven
         run: ./mvnw test
 
@@ -56,10 +59,3 @@ jobs:
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.IP_SERVER }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.PRIVATE_KEY }}
-          port: ${{ secrets.PORT }}
-          script: |
-            cd /home/ubuntu/app
-            sudo docker compose down
-            sudo docker compose up -d --build
