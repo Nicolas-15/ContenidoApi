@@ -1,4 +1,4 @@
-name: build-and-deploy-springboot
+name: build-and-deploy-jar-only
 
 on:
   push:
@@ -7,8 +7,8 @@ on:
 
 jobs:
 
-  build-and-test:
-    name: Compilar y ejecutar pruebas con Maven instalado
+  build:
+    name: Compilar y generar .jar
     runs-on: ubuntu-latest
     steps:
       - name: Clonar repositorio
@@ -23,39 +23,28 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Ejecutar pruebas Maven
-        run: mvn test
+      - name: Compilar proyecto (crea .jar en target/)
+        run: mvn clean package
 
-  deploy-to-ec2:
-    name: Desplegar en EC2 AWS
-    needs: build-and-test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Clonar repositorio
-        uses: actions/checkout@v4
+      - name: Renombrar jar a app.jar
+        run: |
+          mkdir dist
+          cp target/*.jar dist/app.jar
 
-      - name: Crear carpeta en servidor remoto
-        uses: appleboy/ssh-action@v1
+      - name: Copiar app.jar y archivos Docker a EC2
+        uses: appleboy/scp-action@v0.1.6
         with:
           host: ${{ secrets.IP_SERVER }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.PRIVATE_KEY }}
           port: ${{ secrets.PORT }}
-          script: |
-            mkdir -p /home/ubuntu/app
+          source: |
+            dist/app.jar
+            Dockerfile
+            docker-compose.yml
+          target: /home/ubuntu/app/
 
-      - name: Subir archivos al servidor remoto
-        uses: burnett01/rsync-deployments@7.0.2
-        with:
-          switches: "-avz --delete"
-          path: "./"
-          remote_host: ${{ secrets.IP_SERVER }}
-          remote_user: ${{ secrets.USERNAME }}
-          remote_path: "/home/ubuntu/app/"
-          remote_key: ${{ secrets.PRIVATE_KEY }}
-          remote_port: ${{ secrets.PORT }}
-
-      - name: Levantar aplicación con Docker Compose
+      - name: Levantar contenedor en EC2 con Docker Compose
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.IP_SERVER }}
