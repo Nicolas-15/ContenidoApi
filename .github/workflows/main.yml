@@ -36,6 +36,9 @@ jobs:
           echo "Archivos en dist:"
           ls -la dist
 
+      - name: Listar archivos raíz para diagnóstico
+        run: ls -la
+
       - name: Validar existencia de archivos antes de SCP
         run: |
           [ -f dist/app.jar ] || (echo "ERROR: dist/app.jar no existe" && exit 1)
