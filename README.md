@@ -1,155 +1,247 @@
-readme_content = """\
-# Proyecto API de Gestión de Contenidos con Spring Boot
+# 📚 API de Gestión de Contenidos Educativos con Spring Boot
 
-Este proyecto es una API REST desarrollada con Spring Boot para gestionar contenidos educativos. Permite crear, consultar, actualizar y eliminar contenidos con atributos como título, descripción, URL, tipo y fecha de creación. Está conectada a una base de datos MySQL alojada en AWS RDS y ofrece dos versiones de API, una básica y otra con soporte HATEOAS para mejorar la navegabilidad.
-
----
-
-## Características del Proyecto
-
-- API RESTful implementada con Spring Boot y Spring Data JPA.
-- Uso de MySQL como base de datos remota en AWS RDS.
-- Entidad `Contenido` con atributos para gestión completa.
-- Dos versiones de API:
-    - `/api/v1/contenido`: CRUD básico.
-    - `/api/v2/contenido`: CRUD con respuestas enriquecidas con HATEOAS.
-- Generación automática de datos de prueba en perfil `dev` usando Faker.
-- Documentación Swagger UI integrada para probar y explorar los endpoints.
+# 1. 🚀 Descripción del Proyecto
+API REST para gestión de contenidos educativos que permite:
+- ✅ Operaciones CRUD sobre contenidos
+- 🔄 Dos versiones de API: básica y HATEOAS
+- 🗄️ Integración con MySQL en AWS RDS
+- 🧪 Generación automática de datos de prueba
+- 📖 Documentación interactiva con Swagger
+- ⚙️ Despliegue automático en EC2 usando GitHub Actions
 
 ---
 
-## Requisitos de Instalación
+# 2. 🏗️ Diagrama de Arquitectura
+```mermaid
+    A[GitHub] --> B[GitHub Actions CI/CD]
+    B --> C[EC2 Instance]
+    C --> D[Docker Container]
+    D --> E[Spring Boot App]
+    E --> F[MySQL AWS RDS]
+    A --> G[Local Development]
+    G --> H[Spring Boot]
+    G --> I[H2 Database]
+```
+# 3. Estructura de Proyecto
+## 3. 📂 Estructura del Proyecto
 
-Para ejecutar el proyecto localmente, debes tener instalado:
-
-- Java Development Kit (JDK) 17 o superior.
-- Maven para gestión de dependencias.
-- Base de datos MySQL (puedes usar el servicio AWS RDS con los datos configurados).
-- IDE compatible con Java (IntelliJ, Eclipse, VSCode, etc).
-
----
-
-## Configuración
-
-1. Clona o descarga el repositorio en tu máquina local.
-
-2. Abre el archivo `src/main/resources/application.properties` y actualiza las credenciales y URL de la base de datos:
-
-```properties
-spring.datasource.url=jdbc:mysql://52.22.235.213:3306/dbContenido?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
+```bash
+.
+├── src
+│   ├── main
+│   │   ├── java
+│   │   │   └── com
+│   │   │       └── Contenidos
+│   │   │           └── Contenido
+│   │   │               ├── ContenidoApplication.java         # 🚀 Punto de entrada
+│   │   │               ├── config
+│   │   │               ├── controller
+│   │   │               │   ├── cController.java             # 🎮 Controlador API v1
+│   │   │               │   └── cControllerV2.java           # 🔗 Controlador API v2 (HATEOAS)
+│   │   │               ├── model
+│   │   │               │   └── cModel.java                  # 💾 Entidad de Contenido
+│   │   │               ├── repository
+│   │   │               ├── service
+│   │   │               ├── assembler
+│   │   │               │   └── ContenidoModelAssembler.java # 🧩 Ensamblador HATEOAS
+│   │   │               └── util
+│   │   │                   └── DataLoader.java              # 🧪 Cargador de datos de prueba
+│   │   └── resources
+│   │       ├── application.properties                       # ⚙️ Configuración principal
+│   │       └── data.sql                                     # 📝 Datos iniciales (opcional)
+│   └── test
+│       └── java
+│           └── com
+│               └── Contenidos
+│                   └── Contenido
+│                       ├── controller                       # 🧪 Pruebas de controladores
+│                       └── repository                       # 🧪 Pruebas de repositorios
+├── .github
+│   └── workflows
+│       └── main.yml                                         # ⚙️ CI/CD Pipeline
+├── Dockerfile                                               # 🐳 Configuración Docker
+├── docker-compose.yml                                       # 🐋 Orquestación de contenedores
+├── pom.xml                                                  # 📦 Configuración de Maven
+└── README.md                                                # 📚 Documentación del proyecto
+```
+# 4. ⚙️ Configuración Clave
+## application.properties
+# Configuración AWS RDS
+spring.datasource.url=jdbc:mysql://52.22.235.213:3306/dbContenido
 spring.datasource.username=admin
 spring.datasource.password=DuocUC..2025
+
+# Configuración H2 (pruebas)
 spring.jpa.hibernate.ddl-auto=update
 
-3. Opcional: El proyecto está configurado para cargar datos de prueba automáticamente en el perfil dev.
+## Dockefile
+FROM openjdk:17-jdk-slim
 
-Cómo Ejecutar
-Ejecuta la aplicación desde tu IDE
-La API estará disponible en http://localhost:8080.
+COPY target/*.jar app.jar
 
-Endpoints principales
-Versión 1 - Básica (/api/v1/contenido)
-GET /api/v1/contenido - Obtiene lista completa de contenidos.
+ENTRYPOINT ["java","-jar","/app.jar"]
 
-POST /api/v1/contenido - Crea un nuevo contenido.
+# 5. 🌐 Endpoints de la API
 
-GET /api/v1/contenido/{idContenido} - Obtiene contenido por ID.
+Método/Endpoint /Descripción
 
-PUT /api/v1/contenido/{idContenido} - Actualiza contenido existente.
+GET	/api/v1/contenido	Obtener todos los contenidos
 
-DELETE /api/v1/contenido/{idContenido} - Elimina contenido por ID.
+POST	/api/v1/contenido	Crear nuevo contenido
 
-Versión 2 - Con HATEOAS (/api/v2/contenido)
-Mismos endpoints que la versión 1.
+GET	/api/v1/contenido/{id}	Obtener contenido por ID
 
-Las respuestas incluyen enlaces HATEOAS para facilitar la navegación de la API.
+PUT	/api/v1/contenido/{id}	Actualizar contenido
 
-Modelo principal
-La entidad cModel representa los contenidos con estos campos:
+DELETE	/api/v1/contenido/{id}	Eliminar contenido
 
-Campo	Tipo	Descripción
-idContenido	Integer	Identificador único autogenerado
-idInstructor	Integer	ID del instructor relacionado
-titulo	String	Título del contenido
-descripcion	String	Descripción breve
-urlContenido	String	URL única del contenido
-tipoContenido	String	Tipo (Video, Artículo, Podcast, Documento)
-fechaCreacion	Date	Fecha en que se creó el contenido
+GET	/api/v2/contenido	Versión HATEOAS (todos)
 
-Documentación Swagger
-Puedes explorar y probar la API usando Swagger UI en: http://localhost:8080/swagger-ui.html
+GET	/api/v2/contenido/{id}	Versión HATEOAS (por ID)
 
-Carga de datos de prueba
-Al iniciar la aplicación con perfil dev, se cargan automáticamente 10 contenidos de prueba con Faker, simulando datos realistas.
-```
-# Documentación de Testing - Proyecto API Gestión de Contenidos
+GET	/swagger-ui.html Documentación interactiva
 
-Este documento describe las pruebas implementadas para asegurar la calidad del proyecto API de gestión de contenidos desarrollado con Spring Boot.
+# 6. 💾 Modelo de Datos (cModel)
+classDiagram
+direction RL
 
----
+    class cModel {
+        <<Entity (CONTENIDO)>>
+        <<Spring Data JPA>>
+        
+        🔑 idContenido: Integer
+        👤 idInstructor: Integer
+        📛 titulo: String
+        📝 descripcion: String
+        🔗 urlContenido: String
+        🏷️ tipoContenido: String
+        📅 fechaCreacion: Date
+    }
+    
+    note "🔑 Primary Key\n⏫ Auto Increment\n🔗 URL única\n📅 Fecha automática" as N1
+    cModel .. N1
 
-## 1. Pruebas Unitarias del Controlador (cControllerTest)
+# 7. 🔄 Flujo CI/CD (GitHub Actions)
+        
+    name: build-and-deploy-jar-only 
+        on: [push]
+        jobs:
+        build-and-test:
+        runs-on: ubuntu-latest
+        steps:
+        - name: Clonar repositorio
+        uses: actions/checkout@v4
 
-Se utilizan pruebas unitarias con JUnit 5 y Mockito para validar el comportamiento del controlador REST `cController` sin arrancar el servidor.
+      - name: Instalar Maven y Java 17
+        run: sudo apt-get update && sudo apt-get install -y maven
+      
+      - name: Compilar proyecto
+        run: mvn clean package
+      
+      - name: Copiar archivos a EC2
+        uses: appleboy/scp-action@v0.1.6
+        with:
+          host: ${{ secrets.IP_SERVER }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          source: |
+            dist/app.jar
+            Dockerfile
+            docker-compose.yml
+          target: /home/ubuntu/app/
+      
+      - name: Desplegar en Docker
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.IP_SERVER }}
+          script: |
+            cd /home/ubuntu/app
+            sudo docker compose down
+            sudo docker compose up -d --build
 
-- **Objetivo:** Verificar que el controlador responde correctamente a los métodos HTTP: GET, POST, PUT y DELETE.
-- **Herramientas:** JUnit 5, Mockito, MockMvc.
-- **Características:**
-  - Mock de `cService` para simular comportamiento sin conexión a base de datos.
-  - Validación del status HTTP, tipo de contenido JSON y contenido del cuerpo.
-  - Uso de `ObjectMapper` para convertir objetos Java a JSON en las pruebas POST y PUT.
-  - Verificación de que los métodos del servicio son llamados la cantidad esperada de veces.
+# 8 Pruebas Automatizadas
+Estrategia de testing:
+🧩 Pruebas unitarias de controladores con MockMvc
 
-**Ejemplo de pruebas:**
-- `testListaContenido()` verifica que el endpoint GET `/api/v1/contenido` devuelve la lista de contenidos correctamente.
-- `testObtenerContenidoPorID()` prueba la respuesta al consultar un contenido específico.
-- `testAgregarContenido()` y `testActualizarContenido()` comprueban que POST y PUT funcionan y retornan los datos esperados.
-- `testEliminarContenido()` valida que DELETE responde con status OK y llama al método de borrado.
+🗃️ Pruebas de repositorio con H2
 
----
+🔗 Pruebas de integración de servicios
 
-## 2. Pruebas de Repositorio JPA (cRepositoryTest)
+Ejemplo de prueba unitaria:
 
-Pruebas enfocadas en la capa de persistencia, utilizando Spring Boot Test con `@DataJpaTest` y base de datos en memoria H2 para aislar la lógica de acceso a datos.
+@Test
 
-- **Objetivo:** Validar el correcto funcionamiento de las operaciones CRUD en el repositorio JPA.
-- **Características:**
-  - Prueba de guardado y recuperación de un contenido.
-  - Verificación de listado completo.
-  - Prueba de eliminación y confirmación de ausencia posterior.
-  - Uso de perfil `test` para cargar configuración especial de base de datos H2.
+public void testObtenerContenidoPorID() throws Exception {
 
----
+cModel mockContenido = new cModel();
 
-## 3. Test de Contexto de Spring Boot (ContenidoApplicationTests)
+mockContenido.setIdContenido(1);
 
-Prueba sencilla para verificar que el contexto de Spring Boot se carga correctamente sin errores.
+when(contenidoService.getContenido(1)).thenReturn(mockContenido);
+    
+mockMvc.perform(get("/api/v1/contenido/1")).andExpect(status().isOk()).andExpect(jsonPath("$.idContenido", is(1)));
+}
 
-- **Objetivo:** Confirmar que la aplicación arranca sin problemas en entorno de pruebas.
-- **Anotaciones:** `@SpringBootTest` y `@ActiveProfiles("test")`.
+# 9. 📊 Documentación Técnica
+    <dependencies>
+    <!-- Spring Boot -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
 
----
+    <!-- Base de datos -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-data-jpa</artifactId>
+    </dependency>
+    
+    <!-- HATEOAS -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-hateoas</artifactId>
+    </dependency>
+    
+    <!-- Swagger -->
+    <dependency>
+        <groupId>org.springdoc</groupId>
+        <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+        <version>2.7.0</version>
+    </dependency>
+    
+    <!-- Testing -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-test</artifactId>
+        <scope>test</scope>
+    </dependency>
+    </dependencies>
 
-## 4. Configuración de la Base de Datos para Pruebas
+# 10. 🚀 Guía de Despliegue
+Requisitos:
 
-Para pruebas, se utiliza una base de datos en memoria H2, configurada en el perfil `test` mediante las siguientes propiedades:
+☁️ Instancia EC2 con Docker
 
-```properties
-spring.datasource.url=jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-spring.datasource.driver-class-name=org.h2.Driver
-spring.datasource.username=sa
-spring.datasource.password=
-spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+🗃️ Base de datos MySQL (AWS RDS)
 
-spring.jpa.hibernate.ddl-auto=none
-spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.format_sql=true
+🔑 Secrets configurados en GitHub:
 
-spring.sql.init.mode=always
-spring.sql.init.schema-locations=classpath:schema.sql
+IP_SERVER
 
-spring.datasource.oracle.wallet=false
-Esta configuración garantiza un entorno limpio para cada ejecución de prueba, evitando impacto en la base de datos de producción.
-```
-## 5. Ejecución de las pruebas
-Desde tu IDE usando las herramientas integradas de ejecución de tests.
+USERNAME
+
+PRIVATE_KEY
+
+PORT
+
+Despliegue automático:
+
+Push a rama main
+
+GitHub Actions ejecuta pipeline:
+
+🛠️ Compila el JAR
+
+📦 Copia archivos a EC2
+
+🐳 Reconstruye contenedor Docker

@@ -49,8 +49,8 @@ jobs:
 
       - name: Validar existencia de archivos antes de SCP
         run: |
-          [ -f dist/app.jar ] || (echo "ERROR: dist/app.jar no existe" && exit 1)
-          [ -f Dockerfile ] || (echo "ERROR: Dockerfile no existe" && exit 1)
+          [ -f app.jar ]            || (echo "ERROR: app.jar no existe" && exit 1)
+          [ -f Dockerfile ]         || (echo "ERROR: Dockerfile no existe" && exit 1)
           [ -f docker-compose.yml ] || (echo "ERROR: docker-compose.yml no existe" && exit 1)
 
       - name: Copiar archivos al servidor EC2
