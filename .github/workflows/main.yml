@@ -38,12 +38,8 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.PRIVATE_KEY }}
           port: 22
-          source: |
-            dist/app.jar
-            Dockerfile
-            docker-compose.yml
+          source: .
           target: /home/ubuntu/app/
-
       - name: Desplegar con Docker Compose en EC2
         uses: appleboy/ssh-action@v1
         with:
