@@ -1,4 +1,4 @@
-name: build-and-deploy
+name: build-and-deploy-jar-only
 
 on:
   push:
@@ -6,51 +6,48 @@ on:
       - main
 
 jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
 
+  build-and-test:
+    name: Compilar y desplegar Spring Boot a EC2
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
+
+      - name: Clonar repositorio
         uses: actions/checkout@v4
 
-      - name: Set up Java 17
+      - name: Instalar Maven
+        run: sudo apt-get update && sudo apt-get install -y maven
+
+      - name: Configurar Java 17
         uses: actions/setup-java@v4
         with:
-          java-version: 17
-          distribution: temurin
+          java-version: '17'
+          distribution: 'temurin'
 
-      - name: Build Spring Boot JAR
-        run: mvn clean package -DskipTests
+      - name: Compilar proyecto (genera el .jar en target/)
+        run: mvn clean package
 
-      - name: Prepare dist folder
+      - name: Crear carpeta dist y mover jar
         run: |
           mkdir -p dist
           cp target/*.jar dist/app.jar
 
-      - name: List dist folder content
-        run: ls -la dist/
-
-      - name: Verificar archivos antes de copiar
+      - name: Verificar archivos generados
         run: |
-          echo "Contenido de dist/"
+          echo "Archivos en dist:"
           ls -la dist
-          echo "Contenido raíz"
-          ls -la
 
-      - name: Copy files to EC2
+      - name: Copiar archivos al servidor EC2
         uses: appleboy/scp-action@v0.1.6
         with:
           host: ${{ secrets.IP_SERVER }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.PRIVATE_KEY }}
           port: ${{ secrets.PORT }}
-          source: |
-            dist/
-            Dockerfile
-            docker-compose.yml
+          source: ./                   # <--- Copia todo el repo para evitar errores
           target: /home/ubuntu/app/
 
-      - name: Deploy on EC2 with Docker Compose
+      - name: Desplegar con Docker Compose en EC2
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.IP_SERVER }}
@@ -59,9 +56,6 @@ jobs:
           port: ${{ secrets.PORT }}
           script: |
             cd /home/ubuntu/app
-            echo "DB_URL=${{ secrets.DB_URL }}" > .env
-            echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
-            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
             sudo docker compose down
             sudo docker compose up -d --build
             sudo docker compose ps
