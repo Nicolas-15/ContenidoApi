@@ -1,7 +1,10 @@
+version: '3.8'
+
 services:
-  java:
+  app:
     build:
       context: .
       dockerfile: Dockerfile
+    image: springboot-app:latest
     ports:
-      - "8080:8084"
+      - "8080:8080"

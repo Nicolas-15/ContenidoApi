@@ -24,10 +24,8 @@ public class cRepositoryTest {
     public void testSaveContenido() {
         // Given
         cModel contenido = createSampleContenido();
-
         // When
         cModel savedContenido = repository.save(contenido);
-
         // Then
         assertNotNull(savedContenido.getIdContenido());
         assertEquals(contenido.getTitulo(), savedContenido.getTitulo());
@@ -39,10 +37,8 @@ public class cRepositoryTest {
         // Given
         cModel contenido = createSampleContenido();
         cModel savedContenido = repository.save(contenido);
-
         // When
         Optional<cModel> foundContenido = repository.findById(savedContenido.getIdContenido());
-
         // Then
         assertTrue(foundContenido.isPresent());
         assertEquals(savedContenido.getIdContenido(), foundContenido.get().getIdContenido());
@@ -54,10 +50,8 @@ public class cRepositoryTest {
         // Given
         repository.save(createSampleContenido());
         repository.save(createSampleContenido());
-
         // When
         List<cModel> contenidos = repository.findAll();
-
         // Then
         assertFalse(contenidos.isEmpty());
         assertEquals(2, contenidos.size());
@@ -68,11 +62,9 @@ public class cRepositoryTest {
         // Given
         cModel contenido = createSampleContenido();
         cModel savedContenido = repository.save(contenido);
-
         // When
         repository.deleteById(savedContenido.getIdContenido());
         Optional<cModel> foundContenido = repository.findById(savedContenido.getIdContenido());
-
         // Then
         assertFalse(foundContenido.isPresent());
     }

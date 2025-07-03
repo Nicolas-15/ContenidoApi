@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build:
+  build-and-test:
     name: Compilar y desplegar Spring Boot a EC2
     runs-on: ubuntu-latest
     steps:
@@ -23,13 +23,11 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Compilar proyecto (genera el .jar en target/)
+      - name: Compilar proyecto (genera el .jar)
         run: mvn clean package
 
       - name: Renombrar .jar a app.jar
-        run: |
-          mkdir dist
-          cp target/*.jar dist/app.jar
+        run: cp target/*.jar app.jar
 
       - name: Verificar archivos generados
         run: |
@@ -48,14 +46,14 @@ jobs:
       - name: Copiar archivos al servidor EC2
         uses: appleboy/scp-action@v0.1.6
         with:
-          host: ${{ secrets.IP_SERVER }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.PRIVATE_KEY }}
-          port: ${{ secrets.PORT }}
           source: |
             dist/app.jar
             Dockerfile
             docker-compose.yml
+          host: ${{ secrets.IP_SERVER }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          port: ${{ secrets.PORT }}
           target: /home/ubuntu/app/
 
       - name: Desplegar con Docker Compose en EC2

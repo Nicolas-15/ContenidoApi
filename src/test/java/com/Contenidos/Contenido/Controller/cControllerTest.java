@@ -62,7 +62,6 @@ public class cControllerTest {
         // Given
         List<cModel> contenidos = Arrays.asList(contenido, contenido);
         when(service.getContenidos()).thenReturn(contenidos);
-
         // When & Then
         mockMvc.perform(get("/api/v1/contenido"))
                 .andExpect(status().isOk())
@@ -78,7 +77,6 @@ public class cControllerTest {
     void testObtenerContenidoPorID() throws Exception {
         // Given
         when(service.getContenido(CONTENIDO_ID)).thenReturn(contenido);
-
         // When & Then
         mockMvc.perform(get("/api/v1/contenido/{idContenido}", CONTENIDO_ID))
                 .andExpect(status().isOk())
@@ -93,7 +91,6 @@ public class cControllerTest {
     void testAgregarContenido() throws Exception {
         // Given
         when(service.saveContenido(any(cModel.class))).thenReturn(contenido);
-
         // When & Then
         mockMvc.perform(post("/api/v1/contenido")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -110,7 +107,6 @@ public class cControllerTest {
     void testActualizarContenido() throws Exception {
         // Given
         when(service.saveContenido(any(cModel.class))).thenReturn(contenido);
-
         // When & Then
         mockMvc.perform(put("/api/v1/contenido/{idContenido}", CONTENIDO_ID)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -127,7 +123,6 @@ public class cControllerTest {
     void testEliminarContenido() throws Exception {
         // Given
         doNothing().when(service).deleteContenido(anyInt());
-
         // When & Then
         mockMvc.perform(delete("/api/v1/contenido/{idContenido}", CONTENIDO_ID))
                 .andExpect(status().isOk());
