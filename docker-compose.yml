@@ -7,7 +7,6 @@ services:
     ports:
       - "80:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://52.22.235.213:3306/dbContenido?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
-      SPRING_DATASOURCE_USERNAME: admin
-      SPRING_DATASOURCE_PASSWORD: DuocUC..2025
-
+      SPRING_DATASOURCE_URL: ${DB_URL}
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
