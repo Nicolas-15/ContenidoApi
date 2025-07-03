@@ -30,6 +30,13 @@ jobs:
       - name: List dist folder content
         run: ls -la dist/
 
+      - name: Verificar archivos antes de copiar
+        run: |
+          echo "Contenido de dist/"
+          ls -la dist
+          echo "Contenido raíz"
+          ls -la
+
       - name: Copy files to EC2
         uses: appleboy/scp-action@v0.1.6
         with:
